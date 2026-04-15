@@ -119,24 +119,7 @@ tbody td{padding:9px 11px;vertical-align:middle}
 .tab:hover{color:var(--primary)}
 .tab.ta{color:var(--primary);border-bottom-color:var(--primary)}
 .tabp{display:none}.tabp.ta{display:block}
-@media(max-width:700px){.sidebar{display:none}.fr{grid-template-columns:1fr}.fr3{grid-template-columns:1fr}.fr4{grid-template-columns:1fr 1fr}.srow{grid-template-columns:1fr}.main{padding:14px;padding-bottom:80px}}
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bor);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)}
-.mob-nav-inner{display:flex;justify-content:space-around;align-items:center}
-.mn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px;border-radius:8px;cursor:pointer;border:none;background:none;font-family:'Be Vietnam Pro',sans-serif;min-width:52px;color:var(--ts);transition:all .12s}
-.mn .mic{font-size:18px}
-.mn .mlb{font-size:9px;font-weight:600;letter-spacing:.2px}
-.mn.active{color:var(--primary)}
-.mn.active .mlb{color:var(--primary)}
-/* More menu overlay */
-.mob-more{display:none;position:fixed;bottom:65px;left:0;right:0;background:#fff;border-top:1px solid var(--bor);border-radius:16px 16px 0 0;z-index:199;padding:14px 16px;box-shadow:0 -4px 20px rgba(0,0,0,.10)}
-.mob-more.open{display:block}
-.mob-more-title{font-size:11px;font-weight:700;color:var(--ts);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;padding:0 4px}
-.mob-more-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mmb{display:flex;align-items:center;gap:9px;padding:10px 12px;border-radius:10px;cursor:pointer;border:none;background:var(--bg);font-family:'Be Vietnam Pro',sans-serif;font-size:13px;font-weight:500;color:var(--txt);width:100%;text-align:left}
-.mmb:hover{background:var(--pl);color:var(--primary)}
-.mob-overlay{display:none;position:fixed;inset:0;z-index:198;background:rgba(0,0,0,.18)}
-.mob-overlay.open{display:block}
-@media(max-width:700px){.mob-nav{display:block}}
+@media(max-width:700px){.sidebar{display:none}.fr{grid-template-columns:1fr}.fr3{grid-template-columns:1fr}.fr4{grid-template-columns:1fr 1fr}.srow{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -419,7 +402,14 @@ tbody td{padding:9px 11px;vertical-align:middle}
   <div class="card">
     <div class="ct"><span class="dot db"></span> URL Google Apps Script</div>
     <div class="fr fr1"><div class="fg"><label>DÁN URL WEB APP VÀO ĐÂY</label><input type="url" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." oninput="saveUrl()"><span class="fh">Sau khi triển khai Apps Script với quyền "Tôi" + "Mọi người", dán URL vào đây</span></div></div>
-    <div class="bg"><button class="btn btn-p" onclick="testConn()">🔗 Kiểm tra kết nối</button><button class="btn btn-s" onclick="syncAll()">☁ Đồng bộ tất cả</button></div>
+    <div class="bg">
+      <button class="btn btn-p" onclick="testConn()">🔗 Kiểm tra kết nối</button>
+      <button class="btn btn-s" onclick="syncAll()">☁ Đẩy lên Sheet</button>
+      <button class="btn btn-s" onclick="pullFromSheet()" style="background:var(--il);color:var(--inf);border-color:var(--inf)">⬇ Tải về từ Sheet</button>
+    </div>
+    <div id="syncStatus" style="margin-top:8px;font-size:12px;color:var(--ts);display:none">
+      🔄 Lần đồng bộ cuối: <span id="lastSyncTime">--</span>
+    </div>
     <div id="connResult" style="margin-top:10px;padding:10px;border-radius:7px;display:none;font-size:12.5px;line-height:1.7"></div>
   </div>
   <div class="card" style="background:#fffbeb;border-color:#fcd34d">
@@ -452,30 +442,6 @@ tbody td{padding:9px 11px;vertical-align:middle}
 
 </main>
 </div>
-<!-- Mobile overlay -->
-<div class="mob-overlay" id="mobOverlay" onclick="closeMobMore()"></div>
-<!-- Mobile more menu -->
-<div class="mob-more" id="mobMore">
-  <div class="mob-more-title">Danh mục & Khác</div>
-  <div class="mob-more-grid">
-    <button class="mmb" onclick="showPageMob('dm-hang')">📦 Hàng hoá</button>
-    <button class="mmb" onclick="showPageMob('dm-nvl')">🔩 NVL/Vật tư</button>
-    <button class="mmb" onclick="showPageMob('dm-kh')">👥 Khách hàng</button>
-    <button class="mmb" onclick="showPageMob('cai-dat')">☁️ Kết nối Sheet</button>
-    <button class="mmb" onclick="showPageMob('huong-dan')">📖 Hướng dẫn</button>
-  </div>
-</div>
-<!-- Mobile bottom nav -->
-<nav class="mob-nav">
-  <div class="mob-nav-inner">
-    <button class="mn active" id="mn-nhap" onclick="showPageMob('nhap-lieu')"><span class="mic">✏️</span><span class="mlb">Nhập liệu</span></button>
-    <button class="mn" id="mn-sach" onclick="showPageMob('so-sach')"><span class="mic">📋</span><span class="mlb">Sổ sách</span></button>
-    <button class="mn" id="mn-kd" onclick="showPageMob('bc-kd')"><span class="mic">📈</span><span class="mlb">KQ KD</span></button>
-    <button class="mn" id="mn-nxt" onclick="showPageMob('bc-nxt')"><span class="mic">🔄</span><span class="mlb">NXT</span></button>
-    <button class="mn" id="mn-cp" onclick="showPageMob('bc-cp')"><span class="mic">💸</span><span class="mlb">Chi phí</span></button>
-    <button class="mn" id="mn-more" onclick="toggleMobMore()"><span class="mic">☰</span><span class="mlb">Thêm</span></button>
-  </div>
-</nav>
 <div class="toast" id="toast"></div>
 <script>
 // ===== STORE =====
@@ -499,6 +465,7 @@ function init(){
   ['bc-quarter','nxt-quarter','cp-quarter','f-quarter'].forEach(id=>{const el=g(id);if(el)el.value=q});
   g('curDate').textContent = new Date().toLocaleDateString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
   if(SURL){g('scriptUrl').value=SURL;setStatus(true)}
+  showSyncTime();
   updateAllSelects();
   updateTodayStats();
   renderCats();
@@ -517,40 +484,11 @@ function showPage(id,el){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   g('page-'+id).classList.add('active');
   if(el) el.classList.add('active');
-  syncMobNav(id);
   const renders={
     'so-sach':renderTable,'bc-kd':renderBC,'bc-nxt':renderNXT,'bc-cp':renderCP,
     'dm-hang':renderHangList,'dm-nvl':renderNVLList,'dm-kh':renderKH
   };
   if(renders[id]) renders[id]();
-}
-
-// ===== MOBILE NAV =====
-const MOB_NAV_MAP = {'nhap-lieu':'mn-nhap','so-sach':'mn-sach','bc-kd':'mn-kd','bc-nxt':'mn-nxt','bc-cp':'mn-cp'};
-function showPageMob(id){
-  closeMobMore();
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  g('page-'+id).classList.add('active');
-  syncMobNav(id);
-  const renders={'so-sach':renderTable,'bc-kd':renderBC,'bc-nxt':renderNXT,'bc-cp':renderCP,'dm-hang':renderHangList,'dm-nvl':renderNVLList,'dm-kh':renderKH};
-  if(renders[id]) renders[id]();
-  window.scrollTo(0,0);
-}
-function syncMobNav(id){
-  document.querySelectorAll('.mn').forEach(b=>b.classList.remove('active'));
-  const btnId = MOB_NAV_MAP[id];
-  if(btnId && g(btnId)) g(btnId).classList.add('active');
-}
-function toggleMobMore(){
-  const m=g('mobMore'), o=g('mobOverlay');
-  const isOpen = m.classList.contains('open');
-  if(isOpen){m.classList.remove('open');o.classList.remove('open')}
-  else{m.classList.add('open');o.classList.add('open')}
-}
-function closeMobMore(){
-  g('mobMore').classList.remove('open');
-  g('mobOverlay').classList.remove('open');
 }
 
 // ===== TYPE =====
@@ -1001,16 +939,54 @@ async function syncOne(tx){
 
 async function syncAll(){
   if(!SURL){showPage('cai-dat');toast('⚠ Chưa cấu hình URL');return}
-  const r=g('connResult'); if(r){r.style.display='block';r.style.background='#fef9c3';r.style.color='#92400e';r.textContent='☁ Đang đồng bộ '+TX.length+' giao dịch...'}
+  const r=g('connResult'); if(r){r.style.display='block';r.style.background='#fef9c3';r.style.color='#92400e';r.textContent='☁ Đang đẩy '+TX.length+' giao dịch lên Sheet...'}
   toast('☁ Đang đồng bộ...');
   try{
     for(let i=0;i<TX.length;i+=50){
       const chunk=TX.slice(i,i+50);
       await fetch(SURL+'?action=syncChunk&isFirst='+(i===0)+'&data='+encodeURIComponent(JSON.stringify(chunk)),{method:'GET',redirect:'follow'});
     }
-    if(r){r.style.background='var(--pl)';r.style.color='var(--primary)';r.textContent='✓ Đồng bộ thành công '+TX.length+' giao dịch!'}
-    setStatus(true); toast('✓ Đồng bộ lên Google Sheet thành công!');
+    const now=new Date().toLocaleString('vi-VN');
+    localStorage.setItem('qlkd_lastsync',now);
+    if(r){r.style.background='var(--pl)';r.style.color='var(--primary)';r.textContent='✓ Đẩy thành công '+TX.length+' giao dịch lên Google Sheet! ('+now+')'}
+    showSyncTime(now); setStatus(true); toast('✓ Đồng bộ lên Google Sheet thành công!');
   }catch(e){if(r){r.style.background='var(--dl)';r.style.color='var(--dan)';r.textContent='❌ Lỗi: '+e.message}}
+}
+
+async function pullFromSheet(){
+  if(!SURL){showPage('cai-dat');toast('⚠ Chưa cấu hình URL');return}
+  const r=g('connResult'); if(r){r.style.display='block';r.style.background='#fef9c3';r.style.color='#92400e';r.textContent='⬇ Đang tải dữ liệu từ Google Sheet...'}
+  toast('⬇ Đang tải dữ liệu...');
+  try{
+    const res=await fetch(SURL+'?action=getData',{method:'GET',redirect:'follow'});
+    const txt=await res.text();
+    let d={};
+    try{d=JSON.parse(txt)}catch(e){throw new Error('Dữ liệu không hợp lệ')}
+    if(!d.success) throw new Error(d.error||'Lỗi không xác định');
+    if(d.transactions && d.transactions.length>0){
+      // Merge: giữ dữ liệu local + thêm dữ liệu từ sheet (tránh trùng id)
+      const localIds=new Set(TX.map(t=>String(t.id)));
+      const newTx=d.transactions.filter(t=>!localIds.has(String(t.id)));
+      TX=[...TX,...newTx].sort((a,b)=>b.id-a.id);
+      save(); updateAllSelects(); updateTodayStats();
+      const now=new Date().toLocaleString('vi-VN');
+      localStorage.setItem('qlkd_lastsync',now);
+      showSyncTime(now);
+      if(r){r.style.background='var(--pl)';r.style.color='var(--primary)';r.textContent='✓ Tải về thành công! Đã thêm '+newTx.length+' giao dịch mới. Tổng: '+TX.length+' giao dịch'}
+      toast('✓ Tải về '+newTx.length+' giao dịch mới!');
+    } else {
+      if(r){r.style.background='var(--il)';r.style.color='var(--inf)';r.textContent='ℹ Sheet chưa có dữ liệu hoặc dữ liệu đã đồng bộ đầy đủ'}
+      toast('ℹ Không có dữ liệu mới từ Sheet');
+    }
+  }catch(e){
+    if(r){r.style.background='var(--dl)';r.style.color='var(--dan)';r.innerHTML='❌ Lỗi tải dữ liệu: '+e.message+'<br><small>Hãy cập nhật Apps Script phiên bản mới có hỗ trợ action=getData</small>'}
+    toast('❌ Lỗi: '+e.message);
+  }
+}
+
+function showSyncTime(t){
+  const el=g('syncStatus'),el2=g('lastSyncTime');
+  if(el&&el2){el.style.display='block';el2.textContent=t||localStorage.getItem('qlkd_lastsync')||'--'}
 }
 
 // ===== EXPORT CSV =====
@@ -1048,6 +1024,23 @@ function doGet(e) {
       syncChunk(ss, chunk, isFirst);
       if (!isFirst) updateReports(ss);
       return out({ success: true, count: chunk.length });
+    }
+    if (action === 'getData') {
+      const sh = ss.getSheetByName('GiaoDich');
+      if (!sh || sh.getLastRow() < 2) return out({ success: true, transactions: [] });
+      const rows = sh.getRange(2, 1, sh.getLastRow()-1, 13).getValues();
+      const typeMap = {'Bán hàng':'sell','Nhập hàng':'buy','Mua NVL':'mat','Chi phí khác':'cost'};
+      const transactions = rows.filter(r=>r[0]).map(r=>({
+        id: r[0], date: r[1] instanceof Date ? Utilities.formatDate(r[1],'Asia/Ho_Chi_Minh','yyyy-MM-dd') : String(r[1]),
+        type: typeMap[r[2]] || 'cost',
+        matHang: r[3]||'', noiDung: r[3]||'',
+        danhMuc: r[4]||'', loaiCP: r[4]||'',
+        dvt: r[5]||'', soLuong: r[6]||0, donGia: r[7]||0, thanhTien: r[8]||0,
+        thanhToan: r[9]||'',
+        khach: r[10]||'', nhaCC: r[10]||'', nguoiNhan: r[10]||'',
+        giaVon: r[11]||0, ghiChu: r[12]||''
+      }));
+      return out({ success: true, transactions });
     }
     return out({ success: true });
   } catch(err) {
